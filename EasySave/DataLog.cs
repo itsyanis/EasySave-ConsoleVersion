@@ -28,14 +28,25 @@ namespace EasySave
         }
 
 
+        // This method will create the 'logFile' if it hasn't been created, and replenish it with the BackupJob informations
         public void writeOnLogFile(string path, DataLog LogInformations )
         {
-            string JsonInformations = JsonConvert.SerializeObject(LogInformations);
+            string JsonInformations = JsonConvert.SerializeObject(LogInformations);     // Convert DataLog informations to JSON 
 
-            using (StreamWriter LogFile = File.CreateText(path))    
+            if (File.Exists(path) == true)                                              // Check if 'logFile' exist
             {
-                LogFile.WriteLine(JsonInformations);
+                using (StreamWriter logFile = File.AppendText(path))                    // If the 'logFile' exist just append the JSON informations
+                {
+                    logFile.WriteLine(JsonInformations);
+                }
+            }else
+            {
+                using (StreamWriter logFile = File.CreateText(path))                     // If the 'logFile' doesn't exist we create it and put ON Json informations
+                {
+                    logFile.WriteLine(JsonInformations);
+                }
             }
+
         }
     }
 }
