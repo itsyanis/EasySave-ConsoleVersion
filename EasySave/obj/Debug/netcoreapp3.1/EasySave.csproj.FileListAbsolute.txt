@@ -1,0 +1,16 @@
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.csproj.AssemblyReference.cache
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.AssemblyInfoInputs.cache
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.AssemblyInfo.cs
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.csproj.CoreCompileInputs.cache
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\EasySave.exe
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\EasySave.deps.json
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\EasySave.runtimeconfig.json
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\EasySave.runtimeconfig.dev.json
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\EasySave.dll
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\EasySave.pdb
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.csproj.CopyComplete
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.dll
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.pdb
+C:\Users\ASUS\Desktop\Projet Perso\EasySave\obj\Debug\netcoreapp3.1\EasySave.genruntimeconfig.cache

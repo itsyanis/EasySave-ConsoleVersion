@@ -26,7 +26,7 @@ namespace EasySave
             if(userChoice == "1")
             {
                 Console.WriteLine("Enter your Backup name :");
-                 backupName = Console.ReadLine();
+                backupName = Console.ReadLine();
 
                 Console.WriteLine("Enter your source path :");
                 sourcePath = Console.ReadLine();
@@ -40,6 +40,7 @@ namespace EasySave
 
             BackupJob newJob = new BackupJob(backupName, sourcePath, destinationPath, type);
             newJob.writeOnBackupFile(@"C:\\Users\\ASUS\\Desktop\\test.txt", newJob);
+
 
             string json = JsonSerializer.Serialize(newJob);
 
