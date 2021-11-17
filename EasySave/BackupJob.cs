@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -6,11 +8,13 @@ using System.Text.Json;
 
 namespace EasySave
 {
+    // BackupJob derives from Data
     class BackupJob : Data
     {
-
+        // Properties, Setters & Getters
         public string type { get; set; }
 
+        // Constructor
         public BackupJob() { }
         public BackupJob(string backupName, string sourcePath, string destinationPath, string type)
         {
@@ -20,26 +24,29 @@ namespace EasySave
             this.type = type;
         }
 
-        // This method will create the 'backupFile' if it hasn't been created, and replenish it with the BackupJob informations
-        public void writeOnBackupFile(string path, BackupJob JobInformations)
+        // This method will return a specific backupJob 
+        public string getSpecificJob(string backupName)
         {
-            string JsonInformation =  JsonSerializer.Serialize(JobInformations);    // Convert BackupJob informations to JSON 
-
-            if (File.Exists(path) == true)                                          // Check if 'backupFile' exist
+            string[] All_Lines = File.ReadAllLines(@"C:\EasySave\Backup.txt");    // get all content of backupFile 
+            foreach (string line in All_Lines)                                   // Loop line by line 
             {
-                using (StreamWriter file = File.AppendText(path))                   
-                {
-                    file.WriteLine(JsonInformation);                               // If the 'backupFile' exist just append the JSON informations
-                } 
+                var backupJob = (JObject)JsonConvert.DeserializeObject(line);         // Deserialize the each line 
 
-            }else
-            {
-                using (StreamWriter file = File.CreateText(path))                 // If the 'backupFile' doesn't exist we create it and put ON informations
+                string name = backupJob["backupName"].Value<string>();               // Extract the backup name from each line
+
+                if (name == backupName)                                             // Compare if the name is the same with the backupName introduced by user 
                 {
-                    file.WriteLine(JsonInformation);                    
+                    return line;
                 }
             }
+            return null;
         }
 
+
+        // This method will return all backupJob 
+        public string getAllJob()
+        {
+            return null;
+        }
     }
 }
