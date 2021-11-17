@@ -6,18 +6,15 @@ using System.Text.Json;
 
 namespace EasySave
 {
-    class BackupJob
+    class BackupJob : Data
     {
 
-        public string name { get; private set; }
-        public string sourcePath { get; private set; }
-        public string destinationPath { get; private set; }
-        public string type { get; private set; }
+        public string type { get; set; }
 
-
-        public BackupJob(string name, string sourcePath, string destinationPath, string type)
+        public BackupJob() { }
+        public BackupJob(string backupName, string sourcePath, string destinationPath, string type)
         {
-            this.name = name;
+            this.backupName = backupName;
             this.sourcePath = sourcePath;
             this.destinationPath = destinationPath;
             this.type = type;

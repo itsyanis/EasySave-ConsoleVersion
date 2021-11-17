@@ -8,28 +8,31 @@ namespace EasySave
 {
     class Data
     {
-        protected string backupName { get; set; }
-        protected string sourcePath { get; set; }
-        protected string destinationPath { get; set; }
-        protected DateTime timestamp { get;  set; }
+        // Properties, Setters & Getters
+        public string backupName { get; set; }
+        public string sourcePath { get; set; }
+        public string destinationPath { get; set; }
 
+
+        // Default Constructor  
         public Data()
         {
             backupName = backupName;
             sourcePath = sourcePath;
-            timestamp = timestamp;
+            destinationPath = destinationPath;
         }
 
-        public Data(string backupName, string sourcePath, string destinationPath, DateTime timestamp)
+
+        // Constructor
+        public Data(string backupName, string sourcePath, string destinationPath)
         {
             this.backupName = backupName;
             this.sourcePath = sourcePath;
             this.destinationPath = destinationPath;
-            this.timestamp = timestamp;
         }
 
-        // This method will create the 'File' if it hasn't been created, and replenish it with the BackupJob informations
-        public void writeOnFile(string path, Data Informations)
+        // This method will create the 'File' if it hasn't been created, and replenish it with the informations
+        public void writeOnFile(string path, object Informations)
         {
             string JsonInformations = JsonConvert.SerializeObject(Informations);     // Convert DataLog informations to JSON 
 
