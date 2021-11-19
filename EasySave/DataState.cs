@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System;
+
 
 namespace EasySave
 {
@@ -11,31 +8,51 @@ namespace EasySave
 
     {
         // Properties, Setters & Getters
-        public bool state { get; private set; }
+        public bool State { get; private set; }
         public int TotalFilesToCopy { get; private set; }
         public int TotalFilesSize { get; private set; }
         public int NbFilesLeftToDo { get; private set; }
-        protected DateTime timestamp { get; set; }
+        public DateTime Timestamp { get; set; }
 
-        public int progression { get; private set; }
+        public int Progression { get; private set; }
 
 
         // Constructor
-        public DataState(string backupName, string sourcePath, string destinationPath, bool state, int TotalFilesToCopy, int TotalFilesSize, int NbFilesLeftToDo, DateTime timestamp, int progression)
+        public DataState(string BackupName, string SourcePath, string DestinationPath, bool State, int TotalFilesToCopy, int TotalFilesSize, int NbFilesLeftToDo, DateTime Timestamp, int Progression)
         {
-            this.backupName = backupName;
-            this.state = state;
-            this.timestamp = timestamp;
+            this.BackupName = BackupName;
+            this.State = State;
+            this.Timestamp = Timestamp;
 
-            if (state == true)
+            if (State == true)
             {
-                this.sourcePath = sourcePath;
-                this.destinationPath = destinationPath;
+                this.SourcePath = SourcePath;
+                this.DestinationPath = DestinationPath;
                 this.TotalFilesToCopy = TotalFilesToCopy;
                 this.TotalFilesSize = TotalFilesSize;
                 this.NbFilesLeftToDo = NbFilesLeftToDo;
-                this.progression = progression;
+                this.Progression = Progression;
             }
+        }
+
+        public int GetFileToCopy()
+        {
+            return 0;
+        }
+
+        public int GetSizeLeft()
+        {
+            return 0;
+        }
+
+        public string GetCurrentFileAdressSource()
+        {
+            return "0";
+        }
+
+        public string GetFileAdressDestination()
+        {
+            return "0";
         }
     }
 }

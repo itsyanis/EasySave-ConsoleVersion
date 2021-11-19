@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System;
+
 
 namespace EasySave
 {
@@ -11,21 +8,26 @@ namespace EasySave
     class DataLog : Data
     {
         // Properties, Setters & Getters
-        public int size { get; private set; }
-        public DateTime timestamp { get; private set; }
-        public int trasnferTime { get; private set; }
+        public int Size { get; private set; }
+        public DateTime Timestamp { get; private set; }
+        public TimeSpan TrasnferTime { get; private set; }
 
 
         // Constructor
-        public DataLog(string backupName, string sourcePath, string destinationPath, DateTime timestamp, int size, int trasnferTime)
+        public DataLog(string BackupName, string SourcePath, string DestinationPath, DateTime Timestamp, int Size, TimeSpan TrasnferTime)
         {
-            this.backupName = backupName;
-            this.sourcePath = sourcePath;
-            this.destinationPath = destinationPath;
-            this.timestamp = timestamp;
+            this.BackupName = BackupName;
+            this.SourcePath = SourcePath;
+            this.DestinationPath = DestinationPath;
+            this.Timestamp = Timestamp;
 
-            this.size = size;
-            this.trasnferTime = trasnferTime;
+            this.Size = Size;
+            this.TrasnferTime = TrasnferTime;
+        }
+
+        public int GetTransferTime()
+        {
+            return 0;
         }
     }
 }
