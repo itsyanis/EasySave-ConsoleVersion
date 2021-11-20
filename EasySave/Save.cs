@@ -37,9 +37,10 @@ namespace EasySave
 
                     try
                     {
-                        TransferTime.Start();                                                    
+                        TransferTime.Start();
                         System.IO.File.Copy(File, DestinationFile);                             // Try to copy file to destination
-                        TransferTime.Stop();                                                  
+                        TransferTime.Stop();
+                    }
                     catch (Exception e)
                     {
                         Console.WriteLine("En error occurred during the save " + e.ToString());
