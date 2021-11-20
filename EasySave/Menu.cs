@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
+using System.Configuration;
 
 namespace EasySave
 {
@@ -15,6 +16,7 @@ namespace EasySave
         private string DestinationPathEntry;
         private string TypeEntry;
         private string SaveTypeEntry;
+        private string SpecificBackupJob;
 
 
         public void ShowMenu()
@@ -154,28 +156,68 @@ namespace EasySave
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Congratulations, your backup job has been created successfully !");
             Console.ForegroundColor = ConsoleColor.White;
+            ShowMenu();
         }
 
 
         public void ExecuteSpecificJob()
         {
+            ShowCreatedJobs();
 
+            Console.WriteLine("Please choose which job you want to execute : ");
+            SpecificBackupJob = Console.ReadLine();
+            BackupJob job = new BackupJob();
+
+            while (job.GetSpecificJob(SpecificBackupJob) == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("The backup name" + SpecificBackupJob + " not found ...");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                Console.WriteLine("Please choose which job you want to execute : ");
+                SpecificBackupJob = Console.ReadLine();
+            }
+
+            Save SaveJob = new Save();
+            SaveJob.SpecificSave(SpecificBackupJob);
         }
 
         public void ExecuteAllJobs()
         {
-
+            if (new FileInfo(ConfigurationManager.AppSettings.Get("BackupFile")).Length != 0)
+            {
+                Save BackupSave = new Save();
+                BackupSave.SaveAlljobs();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("No created jobs");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
         }
 
         public void ShowCreatedJobs()
         {
-            BackupJob Jobs = new BackupJob();
-            Jobs.ShowAllJobs();
+
+            if (new FileInfo(ConfigurationManager.AppSettings.Get("BackupFile")).Length != 0)
+            {
+                BackupJob Jobs = new BackupJob();
+                Jobs.ShowAllJobs();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("No created jobs");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
         }
 
         public void ShowSavedJobs()
         {
-
+            Save SavedJob = new Save();
+            SavedJob.ShowSavedJob();
         }
 
         public void SetLanguage()
