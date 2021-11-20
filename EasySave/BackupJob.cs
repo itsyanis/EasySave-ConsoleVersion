@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ConsoleTables;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Configuration;
@@ -25,15 +26,15 @@ namespace EasySave
         // This method will return a specific backupJob 
         public string GetSpecificJob(string BackupName)
         {
-            string[] All_Lines = File.ReadAllLines(@"C:\EasySave\Backup.txt");    // get all content of backupFile 
+            string[] All_Lines = File.ReadAllLines(ConfigurationManager.AppSettings.Get("BackupFile"));    // get all content of backupFile 
 
-            foreach (string line in All_Lines)                                   // Loop line by line 
+            foreach (string line in All_Lines)                                   
             {
                 var backupJob = (JObject)JsonConvert.DeserializeObject(line);         // Deserialize the each line 
 
-                string name = backupJob["backupName"].Value<string>();               // Extract the backup name from each line
+                string name = backupJob["BackupName"].Value<string>();               // Extract the backup name from each line
 
-                if (name == BackupName)                                             // Compare if the name is the same with the backupName introduced by user 
+                if (name == BackupName)                                              
                 {
                     return line;
                 }
@@ -47,18 +48,21 @@ namespace EasySave
         {
             string BackupFile = ConfigurationManager.AppSettings.Get("BackupFile");   // Get the Backup file path
 
-            if (new FileInfo(BackupFile).Length != 0)                 // Check if file is not empty
+            if (new FileInfo(BackupFile).Length != 0)                 
             {
                 string[] All_Lines = File.ReadAllLines(BackupFile);    // get all content of backupFile 
+                int i = 1;
+                var table = new ConsoleTable("Count", "Backup Job Name", "Source Path", "Destination Path", "Save Type");
 
                 foreach (string line in All_Lines)
                 {
-                    var backupJob = (JObject)JsonConvert.DeserializeObject(line);         // Deserialize the each line 
+                    var backupJob = (JObject)JsonConvert.DeserializeObject(line);         
 
-                    Console.WriteLine("*********************************************************************");
-                    Console.WriteLine("- Name : " + backupJob["BackupName"] + "\n- Source Path : " + backupJob["SourcePath"] + "\n- Destination Path : " + backupJob["DestinationPath"]);
+                    table.AddRow(i, backupJob["BackupName"], backupJob["SourcePath"], backupJob["DestinationPath"], backupJob["Type"]);
+                    table.Write();
+
+                    i++;
                 }
-                Console.WriteLine("*********************************************************************");
             }
             else
             {
