@@ -8,13 +8,13 @@ namespace EasySave
     class DataLog : Data
     {
         // Properties, Setters & Getters
-        public int Size { get; private set; }
+        public long Size { get; private set; }
         public DateTime Timestamp { get; private set; }
         public TimeSpan TrasnferTime { get; private set; }
 
 
         // Constructor
-        public DataLog(string BackupName, string SourcePath, string DestinationPath, DateTime Timestamp, int Size, TimeSpan TrasnferTime)
+        public DataLog(string BackupName, string SourcePath, string DestinationPath, DateTime Timestamp, long Size, TimeSpan TrasnferTime)
         {
             this.BackupName = BackupName;
             this.SourcePath = SourcePath;
@@ -23,11 +23,6 @@ namespace EasySave
 
             this.Size = Size;
             this.TrasnferTime = TrasnferTime;
-        }
-
-        public int GetTransferTime()
-        {
-            return 0;
         }
     }
 }
