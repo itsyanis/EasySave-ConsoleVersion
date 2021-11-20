@@ -32,7 +32,7 @@ namespace EasySave
         // This method will create the 'File' if it hasn't been created, and replenish it with the informations
         public void WriteOnFile(string Path, object Informations)
         {
-            string JsonInformations = JsonConvert.SerializeObject(Informations);     // Convert DataLog informations to JSON 
+            string JsonInformations = JsonConvert.SerializeObject(Informations, Formatting.Indented);     // Convert DataLog informations to JSON 
 
             try
             {
