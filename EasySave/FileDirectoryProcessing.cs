@@ -25,16 +25,27 @@ namespace EasySave
         }
 
 
+        // This method will create all configs File (EasySave, State, Log)
+        public void GenerateConfigFiles()
+        {
+            this.CreateDirectory(ConfigDirectory);           // Create the EasySave directory that will contain log,state and backup file
+            this.CreateFile(BackupFile);                    
+            this.CreateFile(LogFile);                      
+            this.CreateFile(StateFile);                   
+        }
+
+
+
         // This method will create a new file
         public void CreateFile(string Path)
         {
             //  Check if file already exists
-            if (File.Exists(Path) == false)                  //  Check if file already exists,create the file if not
+            if (File.Exists(Path) == false)                  
             {
                 try
                 {
                     // Try to create the file.
-                    using (File.Create(Path)) { }        // Create the file 
+                    using (File.Create(Path)) { }         
                 }
                 catch (Exception e)
                 {
@@ -44,7 +55,6 @@ namespace EasySave
                 }
             }
         }
-
 
 
         // This method will create a new directory
@@ -68,33 +78,31 @@ namespace EasySave
         }
 
 
-        // This method will create all configs File (EasySave, State, Log)
-        public void GenerateConfigFiles()
+        // This method will check if the directory is empty
+        public bool IsDirectoryEmpty(string SourcePath)
         {
-            this.CreateDirectory(ConfigDirectory);      // Create the EasySave directory that will contain log,state and backup file
-            this.CreateFile(BackupFile);               //  Create the Backup file
-            this.CreateFile(LogFile);                 // Create the log file
-            this.CreateFile(StateFile);              //  Create the state files
+            if (Directory.GetFileSystemEntries(SourcePath).Length == 0)
+            {
+                return true;
+            }
+            return false;
         }
 
 
-        // This method will return the file name
-        public string GetFileName(string FilePath)
+        // This method will return the Directory Size
+        public long GetDirectorySize(string DirectoryPath)
         {
-            return Path.GetFileName(FilePath);
-        }
+            string[] Files = Directory.GetFiles(DirectoryPath);    // Get all files contained in the directory (put them in array)
 
+            long Size = 0;
 
-        // This method will return the file size
-        public int GetFileSize(string FilePath)
-        {
-            return FilePath.Length;
-        }
+            foreach (string File in Files)                        
+            {
+                FileInfo F = new FileInfo(File);                
+                Size += F.Length;
+            }
 
-        // This method will return the file extension
-        public string GetFileExtention(string FilePath)
-        {
-            return Path.GetExtension(FilePath);
+            return Size;                                        
         }
 
     }
