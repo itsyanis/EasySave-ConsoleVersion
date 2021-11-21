@@ -10,7 +10,7 @@ namespace EasySave
         // Properties, Setters & Getters
         public bool State { get; private set; }
         public int TotalFilesToCopy { get; private set; }
-        public int TotalFilesSize { get; private set; }
+        public long TotalFilesSize { get; private set; }
         public int NbFilesLeftToDo { get; private set; }
         public DateTime Timestamp { get; set; }
 
@@ -18,7 +18,7 @@ namespace EasySave
 
 
         // Constructor
-        public DataState(string BackupName, string SourcePath, string DestinationPath, bool State, int TotalFilesToCopy, int TotalFilesSize, int NbFilesLeftToDo, DateTime Timestamp, int Progression)
+        public DataState(string BackupName, string SourcePath, string DestinationPath, bool State, int TotalFilesToCopy, long TotalFilesSize, int NbFilesLeftToDo, DateTime Timestamp, int Progression)
         {
             this.BackupName = BackupName;
             this.State = State;
