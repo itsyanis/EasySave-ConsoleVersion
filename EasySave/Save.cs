@@ -5,41 +5,54 @@ using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace EasySave
 {
     class Save
     {
         private string BackupFile = ConfigurationManager.AppSettings.Get("BackupFile");        // Get the Backup File Path from App.config
-        private string LogFile = ConfigurationManager.AppSettings.Get("LogFile");             // Get the Log File Path from App.config
-        private string StateFile = ConfigurationManager.AppSettings.Get("StateFile");        // Get State File Path from App.config
+        private string LogFile = ConfigurationManager.AppSettings.Get("LogFile");            // Get the Log File Path from App.config
+        private string StateFile = ConfigurationManager.AppSettings.Get("StateFile");       // Get State File Path from App.config
 
 
         public void CompleteSave(string BackupJobName, string SourcePath, string DestinationPath)
         {
             FileDirectoryProcessing processing = new FileDirectoryProcessing();
-            Stopwatch TransferTime = new Stopwatch();                                               
+            Stopwatch TransferTime = new Stopwatch();                                              // Initialize the StopWatch timer 
 
 
             if (Directory.Exists(SourcePath) && !processing.IsDirectoryEmpty(SourcePath))        // Check if source path exist and isn't empty
             {
-                string[] Files = Directory.GetFiles(SourcePath);                                 
+                string[] Files = Directory.GetFiles(SourcePath);                                 // Get all files contained in the source Path (put them in array)
 
-                foreach (string File in Files)                                                     
+                int NbrFiles = System.IO.Directory.GetFiles(SourcePath).Length;                 // Get nbr of Files to copy
+                int NbFilesLeftToDo = NbrFiles;
+                long TotalFileSize = processing.GetDirectorySize(SourcePath);
+
+                foreach (string File in Files)                                                    // browse file by file 
                 {
 
                     // Extract all informations about file (name, size, extention ...)
-                    string FileName = Path.GetFileName(File);                                    
-                    string Extension = Path.GetExtension(File);                                 
-                    long Size = new FileInfo(File).Length;                                     
+                    string FileName = Path.GetFileName(File);                                    // Get file Name
+                    string Extension = Path.GetExtension(File);                                 //  Get extension
+                    long Size = new FileInfo(File).Length;                                     //   Get size
 
                     string DestinationFile = Path.Combine(DestinationPath, FileName);        // Combine the destination path with the file name  
+                    bool State = false;
+
+                    DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now, 15);
 
                     try
                     {
-                        TransferTime.Start();
-                        System.IO.File.Copy(File, DestinationFile);                             // Try to copy file to destination
+                        Parallel.Invoke
+                                        (
+                                            () => TransferTime.Start(),                        // Start the transfer time
+                                            () => System.IO.File.Copy(File, DestinationFile)  // Try to copy file to destination
+                                        );
+
                         TransferTime.Stop();
+                        StateInformations.WriteOnFile(this.StateFile, StateInformations); // Stop the transfer time
                     }
                     catch (Exception e)
                     {
@@ -48,6 +61,8 @@ namespace EasySave
 
                     DataLog LogInformations = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now, Size, TransferTime.Elapsed);
                     LogInformations.WriteOnFile(this.LogFile, LogInformations);               // Put Log informations on Log File
+
+                    NbFilesLeftToDo--;
                 }
 
 
@@ -71,8 +86,12 @@ namespace EasySave
 
                         try
                         {
-                            TransferTime.Start();
-                            Directory.CreateDirectory(DestinationDirectory);   // Create the directory 
+                            Parallel.Invoke
+                                          (
+                                               () => TransferTime.Start(),
+                                               () => Directory.CreateDirectory(DestinationDirectory)   // Create the directory
+                                          );
+
                             TransferTime.Stop();
                         }
                         catch (Exception e)
@@ -90,9 +109,87 @@ namespace EasySave
         }
 
 
-        public void DifferentialSave()
+        public void DifferentialSave(string BackupJobName, string SourcePath, string DestinationPath)
         {
+            FileDirectoryProcessing processing = new FileDirectoryProcessing();
 
+            if (Directory.Exists(SourcePath) == true && !processing.IsDirectoryEmpty(SourcePath))         // Check if source path is a Directory and isn't empty
+            {
+                if (Directory.GetFiles(SourcePath).Length > 0)                                          // Check if source path contain files
+                {
+                    if (Directory.GetFiles(DestinationPath).Length > 0)                             // Check if destination path contain files
+                    {
+                        string[] SourceFiles = Directory.GetFiles(SourcePath);                     // Get all source files
+                        string[] DestinationFiles = Directory.GetFiles(SourcePath);               // Get all destination files
+
+                        foreach (string SourceFile in SourceFiles)
+                        {
+                            string SourceFileName = Path.GetFileName(SourceFile);               // Extract name and source file size 
+                            long SourceFileLength = new FileInfo(SourceFile).Length;
+
+                            bool Find = false;
+
+                            foreach (string DestinationFile in DestinationFiles)
+                            {
+                                string DestinationFileName = Path.GetFileName(DestinationFile);    // Extract name and destination file size
+                                long DestinationFilelength = new FileInfo(DestinationFile).Length;
+
+                                if (string.Compare(SourceFileName, DestinationFile) == 0)         // Comparing
+                                {
+                                    Find = true;       // We find one source file into destination
+
+                                    if (SourceFileLength != DestinationFilelength)   // compare by sizing 
+                                    {
+                                        File.Copy(SourceFile, DestinationFile, true);   // Do the copy with true parametre for overwrite
+
+                                        
+                                         // Write on LogFile
+                                    }
+                                }
+                            }
+
+                            if (Find == false)  // Case if we didn't find source file into destination we need to copy it 
+                            {
+                                string SrcName = Path.GetFileName(SourceFile);
+                                string destination = Path.Combine(DestinationPath, SrcName);
+
+                                File.Copy(SourceFile, destination, true);
+
+                                   // Write on LogFile and state file
+                            }
+
+                        }
+                    }
+                    else       // Case when destination path doesn't contain files, we copy all source files to destination
+                    {
+                        string[] SourceFiles = Directory.GetFiles(SourcePath);
+
+                        foreach (string File in SourceFiles)
+                        {
+                            string SrcName = Path.GetFileName(File);
+                            string Destination = Path.Combine(DestinationPath, SrcName);
+                            System.IO.File.Copy(File, Destination, true);
+
+                                    // Write on LogFile and state file
+                        }
+                    }
+                }
+
+
+                if (Directory.GetDirectories(SourcePath).Length > 0)  // Check if the source Path contain sub directory 
+                {
+                    string[] SourceDirectories = Directory.GetDirectories(SourcePath);
+
+                    foreach (string SubDirectory in SourceDirectories)
+                    {
+                        DirectoryInfo DirInfo = new DirectoryInfo(SubDirectory);
+                        string DirName = DirInfo.Name;
+                        string DestinationDir = Path.Combine(DestinationPath, DirName);
+
+                        DifferentialSave(BackupJobName, SubDirectory, DestinationDir);  // Do the recursivity for files and sub directory 
+                    }
+                }
+            }
         }
 
 
@@ -112,11 +209,11 @@ namespace EasySave
             {
                 case "Complete":
                     CompleteSave(BackupJobName, SourcePath, DestinationPath);
-                    break;
+                break;
 
                 case "Differential":
-                    DifferentialSave();
-                    break;
+                    DifferentialSave(BackupJobName, SourcePath, DestinationPath);
+                break;
             }
 
         }
