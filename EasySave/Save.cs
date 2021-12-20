@@ -42,18 +42,22 @@ namespace EasySave
                     string DestinationFile = Path.Combine(DestinationPath, FileName);        // Combine the destination path with the file name  
                     bool State = false;
 
-                    DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now, 100);
+                    DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), 100);
 
                     try
                     {
                         Parallel.Invoke
                                         (
-                                            () => TransferTime.Start(),                           
+                                            () => TransferTime.Start(),
                                             () => System.IO.File.Copy(File, DestinationFile, true),                         // Try to copy file to destination
-                                            () => StateInformations.WriteOnFile(this.StateFile, StateInformations) 
+                                            () => StateInformations.WriteOnFile(this.StateFile, StateInformations),        // Write state information on StateFile
+                                            () => PBar.ProgBar(FileName)
                                         );
 
                         TransferTime.Stop();
+
+                        DataLog LogInformations = new DataLog(BackupJobName, File, DestinationFile, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), Size, TransferTime.Elapsed);
+                        LogInformations.WriteOnFile(this.LogFile, LogInformations);               // Put Log informations on Log File
                     }
                     catch (Exception e)
                     {
@@ -138,7 +142,7 @@ namespace EasySave
                                     if (SourceFileLength != DestinationFilelength)   // compare by sizing 
                                     {
                                        
-                                        DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now, 100);
+                                        DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), 100);
 
                                         try
                                         {
@@ -146,7 +150,8 @@ namespace EasySave
                                                           (
                                                                () => TransferTime.Start(),
                                                                () => File.Copy(SourceFile, DestinationFile, true),   // Do the copy with true parametre for overwrite
-                                                               () => StateInformations.WriteOnFile(this.StateFile, StateInformations)
+                                                               () => StateInformations.WriteOnFile(this.StateFile, StateInformations),
+                                                               () => PBar.ProgBar(SourceFileName)
                                                           );
 
                                             TransferTime.Stop();
@@ -156,7 +161,7 @@ namespace EasySave
                                             Console.WriteLine("An error occurred during the save " + e.ToString());
                                         }
 
-                                        DataLog LogInformation = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now, 16, TransferTime.Elapsed);
+                                        DataLog LogInformation = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), SourceFileLength, TransferTime.Elapsed);
                                         LogInformation.WriteOnFile(this.LogFile, LogInformation);
 
                                         NbFilesLeftToDo--;
