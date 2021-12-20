@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 
@@ -48,28 +49,51 @@ namespace EasySave
         {
             string BackupFile = ConfigurationManager.AppSettings.Get("BackupFile");   // Get the Backup file path
 
-            if (new FileInfo(BackupFile).Length != 0)                 
+            if (new FileInfo(BackupFile).Length != 0)                 // Check if file is not empty
             {
                 string[] All_Lines = File.ReadAllLines(BackupFile);    // get all content of backupFile 
-                int i = 1;
+                int i = 1;      //Count the number of backup jobs
                 var table = new ConsoleTable("Count", "Backup Job Name", "Source Path", "Destination Path", "Save Type");
 
                 foreach (string line in All_Lines)
                 {
-                    var backupJob = (JObject)JsonConvert.DeserializeObject(line);         
+                    var backupJob = (JObject)JsonConvert.DeserializeObject(line);         // Deserialize the each line 
 
-                    table.AddRow(i, backupJob["BackupName"], backupJob["SourcePath"], backupJob["DestinationPath"], backupJob["Type"]);
-                    table.Write();
-
+                    table.AddRow(i, backupJob["BackupName"], backupJob["SourcePath"], backupJob["DestinationPath"], backupJob["Type"]);  //Add the informations in the table
                     i++;
                 }
+                table.Write();
+                Console.WriteLine();
             }
-            else
+            else     //In case of error
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No backup job has been created.");
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("erreur");
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
+
+        public void DeleteSpecificBackup(string BackupName)
+        {
+            string[] All_Lines = File.ReadAllLines(ConfigurationManager.AppSettings.Get("BackupFile"));    // get all content of backup File 
+
+            File.Delete(ConfigurationManager.AppSettings.Get("BackupFile"));
+
+            using (StreamWriter Backup = new StreamWriter(ConfigurationManager.AppSettings.Get("BackupFile")))
+            {
+                foreach (string line in All_Lines)
+                {
+                    var backupJob = (JObject)JsonConvert.DeserializeObject(line);         // Deserialize the each line 
+
+                    string name = backupJob["BackupName"].Value<string>();               // Extract the backup name from each line
+
+                    if (name != BackupName)                                             // Compare if the name is the same with the backupName introduced by user 
+                    {
+                        Backup.WriteLine(line);
+                    }
+                }
+            }
+        }
+
     }
 }
