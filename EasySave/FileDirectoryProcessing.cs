@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EasySave
 {
@@ -28,23 +30,22 @@ namespace EasySave
         // This method will create all configs File (EasySave, State, Log)
         public void GenerateConfigFiles()
         {
-            this.CreateDirectory(ConfigDirectory);           // Create the EasySave directory that will contain log,state and backup file
-            this.CreateFile(BackupFile);                    
-            this.CreateFile(LogFile);                      
-            this.CreateFile(StateFile);                   
+            CreateDirectory(ConfigDirectory);           // Create the EasySave directory that will contain log,state and backup file
+            CreateFile(BackupFile);                    
+            CreateFile(LogFile);                      
+            CreateFile(StateFile);                   
         }
 
 
 
         // This method will create a new file
-        public void CreateFile(string Path)
+        public static void CreateFile(string Path)
         {
             //  Check if file already exists
             if (File.Exists(Path) == false)                  
             {
                 try
                 {
-                    // Try to create the file.
                     using (File.Create(Path)) { }         
                 }
                 catch (Exception e)
@@ -56,9 +57,22 @@ namespace EasySave
             }
         }
 
+        public static void CreateJsonFile(string Path)
+        {
+              if(!File.Exists(Path))
+              {
+                 CreateFile(Path);
+              }
+
+              if(new FileInfo(Path).Length == 0)
+              {
+                string json = @"[{'DataLog':[]}]";
+                JArray jsonObj = JArray.Parse(json);
+              }
+        }
 
         // This method will create a new directory
-        public void CreateDirectory(string Path)
+        public static void CreateDirectory(string Path)
         {
             try
             {

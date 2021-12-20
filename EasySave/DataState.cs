@@ -12,47 +12,24 @@ namespace EasySave
         public int TotalFilesToCopy { get; private set; }
         public long TotalFilesSize { get; private set; }
         public int NbFilesLeftToDo { get; private set; }
-        public DateTime Timestamp { get; set; }
+        public string Timestamp { get; set; }
 
         public int Progression { get; private set; }
 
 
         // Constructor
-        public DataState(string BackupName, string SourcePath, string DestinationPath, bool State, int TotalFilesToCopy, long TotalFilesSize, int NbFilesLeftToDo, DateTime Timestamp, int Progression)
+        public DataState(string BackupName, string SourcePath, string DestinationPath, bool State, int TotalFilesToCopy, long TotalFilesSize, int NbFilesLeftToDo, string Timestamp, int Progression)
         {
             this.BackupName = BackupName;
             this.State = State;
             this.Timestamp = Timestamp;
-
-            if (State == true)
-            {
-                this.SourcePath = SourcePath;
-                this.DestinationPath = DestinationPath;
-                this.TotalFilesToCopy = TotalFilesToCopy;
-                this.TotalFilesSize = TotalFilesSize;
-                this.NbFilesLeftToDo = NbFilesLeftToDo;
-                this.Progression = Progression;
-            }
+            this.Progression = Progression;
+            this.SourcePath = SourcePath;
+            this.DestinationPath = DestinationPath;
+            this.TotalFilesToCopy = TotalFilesToCopy;
+            this.TotalFilesSize = TotalFilesSize;
+            this.NbFilesLeftToDo = NbFilesLeftToDo;
         }
-
-        public int GetFileToCopy()
-        {
-            return 0;
-        }
-
-        public int GetSizeLeft()
-        {
-            return 0;
-        }
-
-        public string GetCurrentFileAdressSource()
-        {
-            return "0";
-        }
-
-        public string GetFileAdressDestination()
-        {
-            return "0";
-        }
+     
     }
 }
