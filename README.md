@@ -15,7 +15,7 @@ A backup job is defined by:
 
 * A target directory
 
-* One type (full, differential)
+* A type (Complete, differential)
 
    
 The user can request the execution of one of the backup jobs or the sequential execution of all the jobs.
@@ -52,7 +52,7 @@ The software record in real time, in a single file, the progress of the backup j
 
 * Timestamp
 
-The files (Log and Status) are in JSON format. 
+The files (Daily Log and Status) are in JSON format. 
     
 
 ## Tech Stack
@@ -60,8 +60,6 @@ The files (Log and Status) are in JSON format.
 * Visual Studio 2019
 * .NET Core 
 * Git 
-
-
 
 
 ## Features
