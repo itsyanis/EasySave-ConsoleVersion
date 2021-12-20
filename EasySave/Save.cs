@@ -173,14 +173,32 @@ namespace EasySave
                             {
                                 string SrcName = Path.GetFileName(SourceFile);
                                 string destination = Path.Combine(DestinationPath, SrcName);
+
+                                DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), 100);
+
                                 try
                                 {
-                                    File.Copy(SourceFile, destination, true);
+
+                                    Parallel.Invoke
+                                      (
+                                           () => TransferTime.Start(),
+                                           () => File.Copy(SourceFile, destination, true),   // Do the copy with true parametre for overwrite
+                                           () => StateInformations.WriteOnFile(this.StateFile, StateInformations),
+                                           () => PBar.ProgBar(SourceFileName)
+                                      );
+                                   
                                 }
                                 catch (Exception e)
                                 {
                                     Console.WriteLine("An error occurred during the save " + e.ToString());
                                 }
+
+                                TransferTime.Stop();
+
+
+                                DataLog LogInformation = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), SourceFileLength, TransferTime.Elapsed);
+                                LogInformation.WriteOnFile(this.LogFile, LogInformation);
+
                             }
 
                         }
