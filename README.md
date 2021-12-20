@@ -1,6 +1,6 @@
+## Demonstration
+![EasySave](https://user-images.githubusercontent.com/93043965/146806310-aeddb03e-bd93-4c68-b83c-fbde28ecd6d9.gif)
 
-
-![EasySave_Menu](https://user-images.githubusercontent.com/93043965/146800408-245c6184-b5d7-4d9b-b3e7-7bc618c5b26c.PNG)
 ## Project description
 
 EasySave software is a Console application using .Net Core.
