@@ -1,7 +1,7 @@
-## Demonstration
+## Demo
 ![EasySave](https://user-images.githubusercontent.com/93043965/146806310-aeddb03e-bd93-4c68-b83c-fbde28ecd6d9.gif)
 
-## Project description
+## Description
 
 EasySave software is a Console application using .Net Core.
 
@@ -53,13 +53,6 @@ The software record in real time, in a single file, the progress of the backup j
 * Timestamp
 
 The files (Daily Log and Status) are in JSON format. 
-    
-
-## Tech Stack
-
-* Visual Studio 2019
-* .NET Core 
-* Git 
 
 
 ## Features
@@ -70,7 +63,15 @@ The files (Daily Log and Status) are in JSON format.
 * Show created Backups
 * Delete a specific Backup 
 
-## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+## Tech Stack
 
+* Visual Studio 2019
+* .NET Core 
+* Git 
+
+## Installation
+
+```bash
+  git clone https://github.com/itsyanis/EasySave-ConsoleVersion.git
+```
