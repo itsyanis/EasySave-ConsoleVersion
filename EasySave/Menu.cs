@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using System.Configuration;
-using System.Diagnostics;
 
 namespace EasySave
 {
@@ -15,7 +14,6 @@ namespace EasySave
         private string TypeEntry;
         private string SaveTypeEntry;
         private string SpecificBackupJob;
-
 
 
         public void ShowMenu()
@@ -78,20 +76,39 @@ namespace EasySave
 
 
 
-
         public void ShowMenuOptions()
         {
-            Console.WriteLine("\n 1- Create a Backup Job \n");
-            Console.WriteLine("\n 2- Execute a specific Job \n");
-            Console.WriteLine("\n 3- Execute all Jobs \n");
-            Console.WriteLine("\n 4- Show my created jobs \n");
-            Console.WriteLine("\n 5- Delete a Backup Job jobs \n");
-            Console.WriteLine("\n 6- Exit \n");
-
-            Console.WriteLine("\n Choose an option : \n");
+                Console.WriteLine("\n");
+                CenterOptionText("1- Create a Backup Job");
+                CenterOptionText("2- Execute a specific Job");
+                CenterOptionText("3- Execute all Backups Job");
+                CenterOptionText("4- Show my created Backup Jobs");
+                CenterOptionText("5- Delete a Backup Job");
+                CenterOptionText("6- Exit");
         }
 
 
+        public void CenterOptionText(string Text)
+        {
+            Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (Text.Length / 2)) + "}", Text));
+            Console.WriteLine("\n");
+        }
+
+
+
+        public void SuccessMessage(string Text)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(Text);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public void ErrorMessage(string Text)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine(Text);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
 
 
         public void AddBackupJob()
@@ -103,10 +120,7 @@ namespace EasySave
             // Check if the backup name is not empty
             while (String.IsNullOrEmpty(BackupNameEntry))
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write("\n The backup name can't be empty ...\n");
-
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage("\n The backup name can't be empty ...\n");
                 Console.Write("\n Enter your backup name :");
                 BackupNameEntry = Console.ReadLine();
             }
@@ -118,12 +132,8 @@ namespace EasySave
             // Check if the source path is not empty and valid
             while (String.IsNullOrEmpty(SourcePathEntry) || Directory.Exists(SourcePathEntry) != true)
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write("\n Invalid source path, please try again  \n");
-
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage("\n Invalid source path, please try again  \n");
                 Console.Write("\n Enter the source path of the directory you want to copy :  ");
-
                 SourcePathEntry = Console.ReadLine();
             }
 
@@ -133,12 +143,8 @@ namespace EasySave
             // Check if the destination path is not empty and valid
             while (String.IsNullOrEmpty(DestinationPathEntry) || Directory.Exists(DestinationPathEntry) != true)
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write("\n Invalid destination path, please try again  \n");
-
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage("\n Invalid destination path, please try again  \n");
                 Console.Write("\n Enter the destination path of the directory you want to copy :  ");
-
                 DestinationPathEntry = Console.ReadLine();
             }
 
@@ -146,17 +152,13 @@ namespace EasySave
             Console.WriteLine("\n Type of save :  \n");
             Console.WriteLine(" 1- Complete Save \n");
             Console.WriteLine(" 2- Differential Save \n");
-            Console.ForegroundColor = ConsoleColor.White;
 
             Console.WriteLine("Enter the save type :  \n");
             SaveTypeEntry = Console.ReadLine();
 
             while (SaveTypeEntry != "1" && SaveTypeEntry != "2")   
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write("\n Invalid save type ! \n");
-
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage("\n Invalid save type ! \n");
                 Console.WriteLine("Enter the save type :  \n");
                 SaveTypeEntry = Console.ReadLine();
             }
@@ -172,12 +174,12 @@ namespace EasySave
             }
             catch (Exception e)
             {
-                Console.WriteLine("An error occurred while creating backup job " + e.ToString());
+                ErrorMessage("An error occurred while creating backup job " + e.ToString());
             }
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Congratulations, your backup job has been created successfully !");
-            Console.ForegroundColor = ConsoleColor.White;
+            SuccessMessage("Congratulations, your backup job has been created successfully !");
+
+            ReturnToMenu();
         }
 
 
@@ -193,16 +195,17 @@ namespace EasySave
 
             while (job.GetSpecificJob(SpecificBackupJob) == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("The backup name" + SpecificBackupJob + " not found ...");
-                Console.ForegroundColor = ConsoleColor.White;
-
+                ErrorMessage("The backup name" + SpecificBackupJob + " not found ...");
                 Console.WriteLine("Please choose which job you want to execute : ");
                 SpecificBackupJob = Console.ReadLine();
             }
 
             Save SaveJob = new Save();
             SaveJob.SpecificSave(SpecificBackupJob);
+
+            SuccessMessage("\n Backup has been performed ! \n");
+
+            ReturnToMenu();
         }
 
 
@@ -215,10 +218,11 @@ namespace EasySave
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No created jobs");
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage("\n No backup job found \n");
             }
+
+            SuccessMessage("\n All backup jobs have been backed up. \n");
+            ReturnToMenu();
         }
 
         public void ShowCreatedJobs()
@@ -231,9 +235,7 @@ namespace EasySave
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No created jobs");
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage("\n No created jobs \n");
             }
 
             ReturnToMenu();
@@ -250,9 +252,7 @@ namespace EasySave
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No created jobs");
-                Console.ForegroundColor = ConsoleColor.White;
+                ErrorMessage(" \n No created jobs \n");
             }
         }
 
@@ -266,10 +266,7 @@ namespace EasySave
 
             while (Job.GetSpecificJob(SpecificBackupJob) == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("The backup name" + SpecificBackupJob + " not found ...");
-                Console.ForegroundColor = ConsoleColor.White;
-
+                ErrorMessage("The backup name" + SpecificBackupJob + " not found ...");
                 Console.WriteLine("Please choose which job you want to execute : ");
                 SpecificBackupJob = Console.ReadLine();
             }
@@ -278,10 +275,7 @@ namespace EasySave
             Backup.DeleteSpecificBackup(SpecificBackupJob);
 
             ShowCreatedJobs();
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Backup Job : " + SpecificBackupJob + " deleted successfully.");
-            Console.ForegroundColor = ConsoleColor.White;
+            SuccessMessage("Backup Job : " + SpecificBackupJob + " deleted successfully.");
 
             ReturnToMenu();
         }
@@ -299,7 +293,9 @@ namespace EasySave
             }
 
             Thread.Sleep(1000);
-            ShowMenu();   // Return to Menu
+            Console.Clear();
+
+            ShowMenu();           // Return to Menu
         }
 
     }
