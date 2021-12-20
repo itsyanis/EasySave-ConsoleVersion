@@ -50,16 +50,14 @@ namespace EasySave
                     break;
 
                 default:
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine(" \n Invalid option, please choose between 1 and 5 \n ");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Thread.Sleep(1000);
+                    ErrorMessage(" \n Invalid option, please choose between 1 and 5 \n ");
+                    Thread.Sleep(1500);
+                    Console.Clear();
                     ShowMenu();
                     break;
             }
 
         }
-
 
 
         public void ShowEasySaveLogo()
@@ -109,6 +107,7 @@ namespace EasySave
             Console.WriteLine(Text);
             Console.ForegroundColor = ConsoleColor.White;
         }
+
 
 
         public void AddBackupJob()
@@ -174,10 +173,10 @@ namespace EasySave
             }
             catch (Exception e)
             {
-                ErrorMessage("An error occurred while creating backup job " + e.ToString());
+                ErrorMessage("\n An error occurred while creating backup job " + e.ToString());
             }
 
-            SuccessMessage("Congratulations, your backup job has been created successfully !");
+            SuccessMessage("\n Congratulations, your backup job has been created successfully ! \n");
 
             ReturnToMenu();
         }

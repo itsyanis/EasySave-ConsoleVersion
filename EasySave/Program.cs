@@ -13,7 +13,6 @@ namespace EasySave
             // Show Menu 
             Menu menu = new Menu();
             menu.ShowMenu();
-
         }
     }
 }
