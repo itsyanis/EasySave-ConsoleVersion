@@ -11,9 +11,10 @@ namespace EasySave
 {
     class Save
     {
-        private string BackupFile = ConfigurationManager.AppSettings.Get("BackupFile");        // Get the Backup File Path from App.config
-        private string LogFile = ConfigurationManager.AppSettings.Get("LogFile");            // Get the Log File Path from App.config
-        private string StateFile = ConfigurationManager.AppSettings.Get("StateFile");       // Get State File Path from App.config
+
+        private string LogFile = ConfigurationManager.AppSettings.Get("LogFile");              // Get the Log File Path from App.config
+        private string StateFile = ConfigurationManager.AppSettings.Get("StateFile");         // Get State File Path from App.config
+
 
 
         public void CompleteSave(string BackupJobName, string SourcePath, string DestinationPath)
@@ -26,41 +27,38 @@ namespace EasySave
             {
                 string[] Files = Directory.GetFiles(SourcePath);                                 // Get all files contained in the source Path (put them in array)
 
-                int NbrFiles = System.IO.Directory.GetFiles(SourcePath).Length;                 // Get nbr of Files to copy
+                int NbrFiles = Directory.GetFiles(SourcePath).Length;                           // Get nbr of Files to copy
                 int NbFilesLeftToDo = NbrFiles;
                 long TotalFileSize = processing.GetDirectorySize(SourcePath);
 
-                foreach (string File in Files)                                                    // browse file by file 
+                foreach (string File in Files)                                                    
                 {
 
                     // Extract all informations about file (name, size, extention ...)
-                    string FileName = Path.GetFileName(File);                                    // Get file Name
-                    string Extension = Path.GetExtension(File);                                 //  Get extension
-                    long Size = new FileInfo(File).Length;                                     //   Get size
+                    string FileName = Path.GetFileName(File);                                   
+                    string Extension = Path.GetExtension(File);                                 
+                    long Size = new FileInfo(File).Length;                                     
 
                     string DestinationFile = Path.Combine(DestinationPath, FileName);        // Combine the destination path with the file name  
                     bool State = false;
 
-                    DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now, 15);
+                    DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now, 100);
 
                     try
                     {
                         Parallel.Invoke
                                         (
-                                            () => TransferTime.Start(),                        // Start the transfer time
-                                            () => System.IO.File.Copy(File, DestinationFile)  // Try to copy file to destination
+                                            () => TransferTime.Start(),                           
+                                            () => System.IO.File.Copy(File, DestinationFile, true),                         // Try to copy file to destination
+                                            () => StateInformations.WriteOnFile(this.StateFile, StateInformations) 
                                         );
 
                         TransferTime.Stop();
-                        StateInformations.WriteOnFile(this.StateFile, StateInformations); // Stop the transfer time
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("En error occurred during the save " + e.ToString());
+                        Console.WriteLine("An error occurred during the save " + e.ToString());
                     }
-
-                    DataLog LogInformations = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now, Size, TransferTime.Elapsed);
-                    LogInformations.WriteOnFile(this.LogFile, LogInformations);               // Put Log informations on Log File
 
                     NbFilesLeftToDo--;
                 }
@@ -82,45 +80,43 @@ namespace EasySave
 
                         string DestinationDirectory = Path.Combine(DestinationPath, DirectoryName);
 
-                        TransferTime.Reset();                                                   // Start the transfer time
-
                         try
                         {
-                            Parallel.Invoke
-                                          (
-                                               () => TransferTime.Start(),
-                                               () => Directory.CreateDirectory(DestinationDirectory)   // Create the directory
-                                          );
-
-                            TransferTime.Stop();
+                            Directory.CreateDirectory(DestinationDirectory);   // Create the directory
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("En error occurred during the save " + e.ToString());
+                            Console.WriteLine("An error occurred during the save " + e.ToString());
                         }
 
-                        DataLog LogInformation = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now, DirectorySize, TransferTime.Elapsed);
-                        LogInformation.WriteOnFile(this.LogFile, LogInformation);
-
-                        CompleteSave(BackupJobName, Dir, DestinationDirectory);      // Recursivity : We call the method for sub sub ... directory and their files.
+                        CompleteSave(BackupJobName, Dir, DestinationDirectory);                             // Recursivity : We call the method for sub sub ... directory and their files.
                     }
                 }
             }
         }
 
 
+
         public void DifferentialSave(string BackupJobName, string SourcePath, string DestinationPath)
         {
             FileDirectoryProcessing processing = new FileDirectoryProcessing();
+            Stopwatch TransferTime = new Stopwatch();                                                      // Initialize the StopWatch timer for transfert time
 
-            if (Directory.Exists(SourcePath) == true && !processing.IsDirectoryEmpty(SourcePath))         // Check if source path is a Directory and isn't empty
+
+            if (Directory.Exists(SourcePath) == true && !processing.IsDirectoryEmpty(SourcePath))         
             {
+                int NbrFiles = Directory.GetFiles(SourcePath).Length;                                     // Get nbr of Files to copy
+                int NbFilesLeftToDo = NbrFiles;
+                long TotalFileSize = processing.GetDirectorySize(SourcePath);
+
+
                 if (Directory.GetFiles(SourcePath).Length > 0)                                          // Check if source path contain files
                 {
-                    if (Directory.GetFiles(DestinationPath).Length > 0)                             // Check if destination path contain files
+                    if (Directory.GetFiles(DestinationPath).Length > 0)                                // Check if destination path contain files
                     {
-                        string[] SourceFiles = Directory.GetFiles(SourcePath);                     // Get all source files
-                        string[] DestinationFiles = Directory.GetFiles(SourcePath);               // Get all destination files
+                        // Get all source files and destination files
+                        string[] SourceFiles = Directory.GetFiles(SourcePath);                     
+                        string[] DestinationFiles = Directory.GetFiles(SourcePath);               
 
                         foreach (string SourceFile in SourceFiles)
                         {
@@ -128,22 +124,42 @@ namespace EasySave
                             long SourceFileLength = new FileInfo(SourceFile).Length;
 
                             bool Find = false;
+                            bool State = false;
 
                             foreach (string DestinationFile in DestinationFiles)
                             {
                                 string DestinationFileName = Path.GetFileName(DestinationFile);    // Extract name and destination file size
                                 long DestinationFilelength = new FileInfo(DestinationFile).Length;
 
-                                if (string.Compare(SourceFileName, DestinationFile) == 0)         // Comparing
+                                if (string.Compare(SourceFileName, DestinationFile) == 0)         
                                 {
                                     Find = true;       // We find one source file into destination
 
                                     if (SourceFileLength != DestinationFilelength)   // compare by sizing 
                                     {
-                                        File.Copy(SourceFile, DestinationFile, true);   // Do the copy with true parametre for overwrite
+                                       
+                                        DataState StateInformations = new DataState(BackupJobName, SourcePath, DestinationPath, State, NbrFiles, TotalFileSize, NbFilesLeftToDo, DateTime.Now, 100);
 
-                                        
-                                         // Write on LogFile
+                                        try
+                                        {
+                                            Parallel.Invoke
+                                                          (
+                                                               () => TransferTime.Start(),
+                                                               () => File.Copy(SourceFile, DestinationFile, true),   // Do the copy with true parametre for overwrite
+                                                               () => StateInformations.WriteOnFile(this.StateFile, StateInformations)
+                                                          );
+
+                                            TransferTime.Stop();
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Console.WriteLine("An error occurred during the save " + e.ToString());
+                                        }
+
+                                        DataLog LogInformation = new DataLog(BackupJobName, SourcePath, DestinationPath, DateTime.Now, 16, TransferTime.Elapsed);
+                                        LogInformation.WriteOnFile(this.LogFile, LogInformation);
+
+                                        NbFilesLeftToDo--;
                                     }
                                 }
                             }
@@ -152,10 +168,14 @@ namespace EasySave
                             {
                                 string SrcName = Path.GetFileName(SourceFile);
                                 string destination = Path.Combine(DestinationPath, SrcName);
-
-                                File.Copy(SourceFile, destination, true);
-
-                                   // Write on LogFile and state file
+                                try
+                                {
+                                    File.Copy(SourceFile, destination, true);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("An error occurred during the save " + e.ToString());
+                                }
                             }
 
                         }
@@ -168,15 +188,21 @@ namespace EasySave
                         {
                             string SrcName = Path.GetFileName(File);
                             string Destination = Path.Combine(DestinationPath, SrcName);
-                            System.IO.File.Copy(File, Destination, true);
 
-                                    // Write on LogFile and state file
+                            try
+                            {
+                                System.IO.File.Copy(File, Destination, true);
+                            }
+                            catch(Exception e)
+                            {
+                                Console.WriteLine("An error occurred during the save " + e.ToString());
+                            }
                         }
                     }
                 }
 
 
-                if (Directory.GetDirectories(SourcePath).Length > 0)  // Check if the source Path contain sub directory 
+                if (Directory.GetDirectories(SourcePath).Length > 0)                            // Check if the source Path contain sub directory 
                 {
                     string[] SourceDirectories = Directory.GetDirectories(SourcePath);
 
@@ -186,11 +212,17 @@ namespace EasySave
                         string DirName = DirInfo.Name;
                         string DestinationDir = Path.Combine(DestinationPath, DirName);
 
-                        DifferentialSave(BackupJobName, SubDirectory, DestinationDir);  // Do the recursivity for files and sub directory 
+                        if (Directory.Exists(DestinationDir) == false)
+                        {
+                            Directory.CreateDirectory(DestinationDir);                              // Create the directory 
+                        }
+
+                        DifferentialSave(BackupJobName, SubDirectory, DestinationDir);              // Do the recursivity for files and sub directory 
                     }
                 }
             }
         }
+
 
 
 
@@ -209,11 +241,11 @@ namespace EasySave
             {
                 case "Complete":
                     CompleteSave(BackupJobName, SourcePath, DestinationPath);
-                break;
+                    break;
 
                 case "Differential":
                     DifferentialSave(BackupJobName, SourcePath, DestinationPath);
-                break;
+                    break;
             }
 
         }
@@ -233,24 +265,6 @@ namespace EasySave
             }
         }
 
-
-        public void ShowSavedJob()
-        {
-            string LogFile = ConfigurationManager.AppSettings.Get("LogFile");
-            String[] GetAll = File.ReadAllLines(LogFile);
-            int i = 1;
-            var table = new ConsoleTable("Count", "Backup Job Name", "Source Path", "Destination Path", "Save Type");
-
-            foreach (string line in GetAll)                                                    // Loop line by line 
-            {
-                var backupJob = (JObject)JsonConvert.DeserializeObject(line);                // Deserialize each line 
-
-                table.AddRow(i, backupJob["BackupName"], backupJob["SourcePath"], backupJob["DestinationPath"], backupJob["Type"]);
-                table.Write();
-                i++;
-            }
-
-        }
 
     }
 }
